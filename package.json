@@ -1,0 +1,80 @@
+{
+  "name": "@locci/rusty-utils",
+  "version": "1.0.0-beta.2",
+  "description": "Rust-inspired error handling and functional utilities for TypeScript",
+  "main": "dist/index.js",
+  "type": "module",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./result": {
+      "import": "./dist/result.esm.js",
+      "require": "./dist/result.js",
+      "types": "./dist/result.d.ts"
+    },
+    "./option": {
+      "import": "./dist/option.esm.js",
+      "require": "./dist/option.js",
+      "types": "./dist/option.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts --ignore-pattern src/__tests__",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "type-check": "tsc --noEmit",
+    "dev": "rollup -c -w",
+    "prepublishOnly": "npm run build && npm run test",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "rust",
+    "typescript",
+    "functional-programming",
+    "error-handling",
+    "result",
+    "option",
+    "maybe"
+  ],
+  "author": "MikeTeddyOmondi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikeTeddyOmondi/rusty-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MikeTeddyOmondi/rusty-utils/issues"
+  },
+  "homepage": "https://github.com/MikeTeddyOmondi/rusty-utils#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "rollup": "^4.12.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
