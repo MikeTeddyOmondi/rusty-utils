@@ -1,6 +1,6 @@
 {
   "name": "@locci/rusty-utils",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.4",
   "description": "Rust-inspired error handling and functional utilities for TypeScript",
   "main": "dist/index.js",
   "type": "module",
