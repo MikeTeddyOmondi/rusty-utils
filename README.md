@@ -38,7 +38,18 @@ pnpm add @locci/rusty-utils
 Replace try-catch blocks and error-prone nullable returns with expressive, type-safe error handling:
 
 ```typescript
-import { ok, err, isOk, map, andThen, match } from "@locci/rusty-utils";
+import {
+  ok,
+  err,
+  andThenResult,
+  matchResult,
+  Result,
+} from "@locci/rusty-utils";
+
+interface User {
+  email: string;
+  age: number;
+}
 
 // Define your domain errors
 type ValidationError =
@@ -56,15 +67,15 @@ const validateAge = (age: number): Result<number, ValidationError> => {
 
 // Chain operations safely
 const createUser = (email: string, age: number) =>
-  andThen(validateEmail(email), (validEmail) =>
-    andThen(validateAge(age), (validAge) =>
+  andThenResult(validateEmail(email), (validEmail) =>
+    andThenResult(validateAge(age), (validAge) =>
       ok({ email: validEmail, age: validAge })
     )
   );
 
 // Handle results with pattern matching
 const handleResult = (result: Result<User, ValidationError>) =>
-  match(result, {
+  matchResult(result, {
     ok: (user) => `Created user: ${user.email}`,
     err: (error) => {
       switch (error.type) {
@@ -77,7 +88,7 @@ const handleResult = (result: Result<User, ValidationError>) =>
   });
 
 // Usage
-const result = createUser("john@example.com", 25);
+const result = createUser("john@example.com", 20);
 console.log(handleResult(result)); // "Created user: john@example.com"
 ```
 
@@ -86,7 +97,7 @@ console.log(handleResult(result)); // "Created user: john@example.com"
 Handle nullable values without null/undefined errors:
 
 ```typescript
-import { some, none, isSome, map, andThen, unwrapOr } from "@locci/rusty-utils";
+import { some, none, Option, mapOption, andThenOption, unwrapOrOption } from "@locci/rusty-utils";
 
 interface User {
   id: string;
@@ -107,15 +118,15 @@ const findUser = (id: string): Option<User> => {
 
 // Chain operations safely
 const getUserEmail = (id: string): Option<string> =>
-  andThen(findUser(id), (user) => (user.email ? some(user.email) : none));
+  andThenOption(findUser(id), (user) => (user.email ? some(user.email) : none));
 
 // Transform values safely
 const getEmailDomain = (id: string): Option<string> =>
-  map(getUserEmail(id), (email) => email.split("@")[1]);
+  mapOption(getUserEmail(id), (email) => email.split("@")[1]);
 
 // Provide defaults
 const displayEmail = (id: string): string =>
-  unwrapOr(getUserEmail(id), "No email provided");
+  unwrapOrOption(getUserEmail(id), "No email provided");
 
 console.log(displayEmail("1")); // "alice@example.com"
 console.log(displayEmail("2")); // "No email provided"
@@ -125,6 +136,17 @@ console.log(displayEmail("2")); // "No email provided"
 
 ```typescript
 import { pipe, compose, memoize, debounce, groupBy } from "@locci/rusty-utils";
+
+interface User {
+  id: string;
+  name: string;
+  email?: string;
+}
+
+const users: User[] = [
+  { id: "1", name: "Alice", email: "alice@example.com" },
+  { id: "2", name: "Bob" },
+];
 
 // Data transformation pipelines
 const processUsers = (users: User[]) =>
@@ -137,7 +159,7 @@ const processUsers = (users: User[]) =>
 
 // Function composition
 const addTax = (rate: number) => (price: number) => price * (1 + rate);
-const formatCurrency = (amount: number) => `${amount.toFixed(2)}`;
+const formatCurrency = (amount: number) => amount.toFixed(2) as unknown as number;
 const calculateTotal = compose(formatCurrency, addTax(0.1));
 
 console.log(calculateTotal(100)); // "$110.00"
@@ -204,12 +226,12 @@ const debouncedSave = debounce((data: any) => {
 
 ```typescript
 import express from "express";
-import { tryCatchAsync, match } from "@locci/rusty-utils";
+import { tryCatchAsync, matchResult } from "@locci/rusty-utils";
 
 app.get("/users/:id", async (req, res) => {
   const result = await tryCatchAsync(() => userService.findById(req.params.id));
 
-  const response = match(result, {
+  const response = matchResult(result, {
     ok: (user) => res.json(user),
     err: (error) => res.status(404).json({ error: error.message }),
   });
@@ -220,15 +242,15 @@ app.get("/users/:id", async (req, res) => {
 
 ```typescript
 import { Injectable } from "@nestjs/common";
-import { Result, ok, err, andThen } from "@locci/rusty-utils";
+import { Result, ok, err, andThenResult } from "@locci/rusty-utils";
 
 @Injectable()
 export class UserService {
   async createUser(
     data: CreateUserDto
   ): Promise<Result<User, ValidationError>> {
-    return andThen(this.validateInput(data), (validData) =>
-      andThen(this.checkEmailExists(validData.email), () =>
+    return andThenResult(this.validateInput(data), (validData) =>
+      andThenResult(this.checkEmailExists(validData.email), () =>
         this.saveUser(validData)
       )
     );
@@ -240,14 +262,14 @@ export class UserService {
 
 ```typescript
 import React from "react";
-import { Option, match } from "@locci/rusty-utils";
+import { Option, matchOption } from "@locci/rusty-utils";
 
 interface Props {
   user: Option<User>;
 }
 
 const UserProfile: React.FC<Props> = ({ user }) => {
-  return match(user, {
+  return matchOption(user, {
     some: (u) => (
       <div>
         <h1>{u.name}</h1>
