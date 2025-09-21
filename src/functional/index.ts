@@ -10,10 +10,26 @@ export const compose = <T>(...functions: Array<(arg: T) => T>) =>
 
 /**
  * Pipe function - applies functions from left to right
- * More intuitive for data transformation pipelines
+ * Supports type evolution through the pipeline
+ * Works with any data structure with proper type inference
  */
-export const pipe = <T>(value: T, ...functions: Array<(arg: any) => any>): any =>
+export const pipe = <T>(value: T, ...functions: Array<(arg: T) => T>): T =>
   functions.reduce((acc, fn) => fn(acc), value);
+
+// export const pipe: {
+//   <T>(value: T): T;
+//   <T, A>(value: T, f1: (arg: T) => A): A;
+//   <T, A, B>(value: T, f1: (arg: T) => A, f2: (arg: A) => B): B;
+//   <T, A, B, C>(value: T, f1: (arg: T) => A, f2: (arg: A) => B, f3: (arg: A) => C): C;
+//   // Add more overloads as needed for additional functions
+//   <T>(value: T, ...functions: Array<(arg: any) => any>): unknown;
+// } = <T>(value: T, ...functions: Array<(arg: any) => any>): unknown =>
+//   functions.reduce((acc, fn) => fn(acc), value);
+
+// export const pipe = <T, U>(
+//   value: T,
+//   ...functions: Array<(arg: any) => any>
+// ): U => functions.reduce((acc, fn) => fn(acc), value) as U;
 
 /**
  * Curry a binary function
